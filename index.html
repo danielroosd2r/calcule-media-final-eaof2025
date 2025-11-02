@@ -3,45 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Saudação</title>
+  <title>Saudação e Notas</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f2f2f2; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
-    .container { background:#fff; width:90%; max-width:340px; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.15); text-align:center; }
-    input { width:100%; padding:10px; margin-top:10px; border:1px solid #ccc; border-radius:6px; font-size:16px; }
-    button { width:100%; margin-top:12px; padding:10px; border:none; border-radius:6px; font-size:16px; cursor:pointer; background:#007bff; color:#fff; }
-    button:active { transform:translateY(1px); }
-    #mensagem { margin-top:16px; font-size:18px; color:#333; min-height:1.2em; }
+    body {
+      font-family: Arial, sans-serif;
+      background:#f2f2f2;
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .container {
+      background:#fff;
+      width:90%;
+      max-width:360px;
+      padding:20px;
+      border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,.15);
+      text-align:center;
+    }
+    input {
+      width:100%;
+      padding:10px;
+      margin-top:8px;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:16px;
+    }
+    button {
+      margin-top:15px;
+      padding:10px 20px;
+      background:#007bff;
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      font-size:16px;
+      cursor:pointer;
+    }
+    button:hover {
+      background:#0056b3;
+    }
+    #mensagem {
+      margin-top:20px;
+      font-size:18px;
+      color:#333;
+      min-height:1.2em;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Digite seu nome</h2>
-    <input type="text" id="nome" placeholder="Seu nome" inputmode="text" autocomplete="name" />
-    <button id="btnSaudar" type="button">Enviar</button>
+    <input type="text" id="nome" placeholder="Seu nome" />
+
+    <h2>Nota de AMT:</h2>
+    <input type="number" id="notaAMT" step="0.00001" min="0" max="10" placeholder="0 a 10" />
+
+    <h2>Nota de ND:</h2>
+    <input type="number" id="notaND" step="0.00001" min="0" max="10" placeholder="0 a 10" />
+
+    <h2>Nota de GP:</h2>
+    <input type="number" id="notaGP" step="0.00001" min="0" max="10" placeholder="0 a 10" />
+
+    <button id="btnSaudar">Enviar</button>
     <p id="mensagem"></p>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var input = document.getElementById('nome');
-      var btn = document.getElementById('btnSaudar');
-      var msg = document.getElementById('mensagem');
+    document.addEventListener('DOMContentLoaded', function() {
+      const nomeInput = document.getElementById('nome');
+      const amtInput  = document.getElementById('notaAMT');
+      const ndInput   = document.getElementById('notaND');
+      const gpInput   = document.getElementById('notaGP');
+      const mensagem  = document.getElementById('mensagem');
+      const btn       = document.getElementById('btnSaudar');
 
-      function saudar() {
-        var nome = (input.value || '').trim();
-        if (nome) {
-          msg.textContent = 'Bem-vindo ' + nome + '!';
-        } else {
-          msg.textContent = 'Por favor, digite seu nome.';
+      btn.addEventListener('click', () => {
+        const nome = nomeInput.value.trim();
+        const notaAMT = parseFloat(amtInput.value);
+        const notaND  = parseFloat(ndInput.value);
+        const notaGP  = parseFloat(gpInput.value);
+
+        if (!nome) {
+          mensagem.textContent = "Por favor, digite seu nome.";
+          return;
         }
-      }
+        if ([notaAMT, notaND, notaGP].some(v => isNaN(v) || v < 0 || v > 10)) {
+          mensagem.textContent = "Todas as notas devem ser números válidos de 0 a 10.";
+          return;
+        }
 
-      btn.addEventListener('click', saudar);
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') saudar();
+        // Armazenar valores em variáveis globais
+        window.valorNome = nome;
+        window.valorNotaAMT = notaAMT;
+        window.valorNotaND  = notaND;
+        window.valorNotaGP  = notaGP;
+
+        // Calcular média simples
+        const media = (notaAMT + notaND + notaGP) / 3;
+        window.valorMedia = media;
+
+        // Exibir resultado
+        mensagem.innerHTML = `
+          Bem-vindo <b>${nome}</b>!<br>
+          AMT: ${notaAMT.toFixed(5)} | ND: ${notaND.toFixed(5)} | GP: ${notaGP.toFixed(5)}<br><br>
+          <b>Média Final das Provas Teóricas:</b> ${media.toFixed(5)}
+        `;
+
+        // Mostrar também no console
+        console.log("Nome:", nome);
+        console.log("AMT:", notaAMT);
+        console.log("ND:", notaND);
+        console.log("GP:", notaGP);
+        console.log("Média Final:", media);
       });
     });
   </script>
 </body>
 </html>
-
