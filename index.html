@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Saudação</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f2f2f2; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .container { background:#fff; width:90%; max-width:340px; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.15); text-align:center; }
+    input { width:100%; padding:10px; margin-top:10px; border:1px solid #ccc; border-radius:6px; font-size:16px; }
+    button { width:100%; margin-top:12px; padding:10px; border:none; border-radius:6px; font-size:16px; cursor:pointer; background:#007bff; color:#fff; }
+    button:active { transform:translateY(1px); }
+    #mensagem { margin-top:16px; font-size:18px; color:#333; min-height:1.2em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Digite seu nome</h2>
+    <input type="text" id="nome" placeholder="Seu nome" inputmode="text" autocomplete="name" />
+    <button id="btnSaudar" type="button">Enviar</button>
+    <p id="mensagem"></p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var input = document.getElementById('nome');
+      var btn = document.getElementById('btnSaudar');
+      var msg = document.getElementById('mensagem');
+
+      function saudar() {
+        var nome = (input.value || '').trim();
+        if (nome) {
+          msg.textContent = 'Bem-vindo ' + nome + '!';
+        } else {
+          msg.textContent = 'Por favor, digite seu nome.';
+        }
+      }
+
+      btn.addEventListener('click', saudar);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') saudar();
+      });
+    });
+  </script>
+</body>
+</html>
+
