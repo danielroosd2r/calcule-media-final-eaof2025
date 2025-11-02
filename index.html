@@ -58,8 +58,10 @@
       <div class="subcampo">
         <h3>TACF</h3>
 
-        <!-- NOTA TACF agora será calculada automaticamente e exibida no resultado -->
+        <!-- Status do carregamento dos CSVs -->
         <div class="warn" id="csvStatus">Carregando tabelas do TACF (CSV)...</div>
+        <!-- Painel com as notas por categoria -->
+        <div class="ok" id="notasTACFInfo" style="display:none;"></div>
 
         <div class="grid grid-2">
           <div>
@@ -142,7 +144,7 @@
       return Math.round(n);                     // já em cm
     }
     function roundToHalf(x){ return Math.round(x*2)/2; }
-    function parseHMS(hms){ if(!hms) return null; const m=/^(\\d{1,2}):([0-5]\\d):([0-5]\\d)$/.exec(hms.trim()); if(!m) return null; return parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3]); }
+    function parseHMS(hms){ if(!hms) return null; const m=/^(\d{1,2}):([0-5]\d):([0-5]\d)$/.exec(hms.trim()); if(!m) return null; return parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3]); }
 
     /* ========= CINTURA (Tabelas embutidas) ========= */
     // Masculino – colunas: [166, 167-171, 172-175, 176-180, 181-188, 189+]
@@ -217,7 +219,7 @@
 
     function parseCSV(text){
       // Parser simples (suporta vírgulas; sem aspas aninhadas)
-      const lines = text.trim().split(/\\r?\\n/);
+      const lines = text.trim().split(/\r?\n/);
       const headers = lines[0].split(',').map(s => s.trim());
       const rows = lines.slice(1).map(line => {
         const cols = line.split(',').map(s => s.trim());
@@ -250,38 +252,67 @@
       }
     }
 
-    /* ========= FUNÇÕES DE LOOKUP ========= */
-    // Identifica a coluna de faixa etária correta pelo cabeçalho (ex.: "20-29", "53+", "29")
+    /* ========= SELETOR DE FAIXA ETÁRIA (ROBUSTO) ========= */
+    function normHeader(s) {
+      if (!s) return "";
+      return s
+        .replace(/\u00A0/g, " ")                               // NBSP -> espaço
+        .trim()
+        .replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, "-") // vários "hífens"
+        .replace(/\s*-\s*/g, "-");                             // remove espaços ao redor do hífen
+    }
+
     function pickAgeColumn(age, headers){
-      // Remove a primeira coluna (chave) para não confundir
-      const cols = headers.slice(1);
-      for(const h of cols){
-        const s = h.trim();
-        if(/^\\d+$/.test(s)){ // ex: "29" (idade única)
-          if(age === parseInt(s,10)) return h;
-        }else if(/^(\\d+)\\+$/.test(s)){ // ex: "53+"
-          const base = parseInt(s,10);
-          if(age >= base) return h;
-        }else{
-          const m = s.match(/^(\\d+)-(\\d+)$/); // ex: "20-29"
-          if(m){
+      const rawCols = headers.slice(1);
+      const cols = rawCols.map(h => ({ raw: h, norm: normHeader(h) }));
+
+      // 1) cobertura exata
+      for (const { raw, norm } of cols) {
+        if (/^\d+$/.test(norm)) {                 // "29"
+          if (age === parseInt(norm, 10)) return raw;
+        } else if (/^(\d+)\+$/.test(norm)) {      // "53+"
+          const base = parseInt(norm, 10);
+          if (age >= base) return raw;
+        } else {
+          const m = norm.match(/^(\d+)-(\d+)$/);  // "42-43"
+          if (m) {
             const a1 = parseInt(m[1],10), a2 = parseInt(m[2],10);
-            if(age >= a1 && age <= a2) return h;
+            if (age >= a1 && age <= a2) return raw;
           }
         }
       }
-      return null;
+
+      // 2) fallback: faixa mais próxima
+      let best = null, bestDist = Infinity;
+      function distToRange(age, minv, maxv){
+        if (age < minv) return (minv - age);
+        if (age > maxv) return (age - maxv);
+        return 0;
+      }
+      for (const { raw, norm } of cols) {
+        let minv, maxv;
+        if (/^\d+$/.test(norm)) { minv = maxv = parseInt(norm,10); }
+        else if (/^(\d+)\+$/.test(norm)) { minv = parseInt(norm,10); maxv = 200; }
+        else {
+          const m = norm.match(/^(\d+)-(\d+)$/);
+          if (!m) continue;
+          minv = parseInt(m[1],10); maxv = parseInt(m[2],10);
+        }
+        const d = distToRange(age, minv, maxv);
+        if (d < bestDist) { bestDist = d; best = raw; }
+      }
+      return best || null;
     }
 
-    // Busca valor mais próximo na 1ª coluna (repeticoes/dist_m/tempo_hhmmss)
+    /* ========= FUNÇÕES DE LOOKUP ========= */
     function nearestRowValue(rows, keyName, targetNumeric, keyIsTime=false){
       let bestRow=null, bestDiff=Infinity;
       for(const r of rows){
         let val;
         if(keyIsTime){
-          const m = /^([0-2]\\d):([0-5]\\d):([0-5]\\d)$/.exec(r[keyName]);
+          const m = /^([0-2]\d):([0-5]\d):([0-5]\d)$/.exec(r[keyName]);
           if(!m) continue;
-          val = parseInt(m[1])*3600 + parseInt(m[2])*60 + parseInt(m[3]);
+          val = parseInt(m[1],10)*3600 + parseInt(m[2],10)*60 + parseInt(m[3],10);
         }else{
           val = parseFloat(r[keyName]);
           if(isNaN(val)) continue;
@@ -362,6 +393,7 @@
       const mensagem    = document.getElementById('mensagem');
       const btn         = document.getElementById('btnCalcular');
       const statusEl    = document.getElementById('csvStatus');
+      const infoEl      = document.getElementById('notasTACFInfo');
 
       // Normalizações
       estaturaInp.addEventListener('blur', ()=>{
@@ -450,19 +482,35 @@
         }
         if(nAer==null){ mensagem.textContent='Não foi possível calcular a Nota Aeróbica (corrida/caminhada).'; return; }
 
-        // TACF final
+        // TACF final = (cintura + flexão + abdominal + aeróbico) / 10
         const notaTACF_calc = (nCintura + nFlex + nAbd + nAer) / 10;
+
+        // Médias globais (5 casas decimais)
         const mediaTeorica = ((notaAMT + notaND + notaGP)/3).toFixed(5);
         const mediaPratica = ((notaTACF_calc + notaOU)/2).toFixed(5);
         const mediaEstagio = (((parseFloat(mediaTeorica)*3) + (parseFloat(mediaPratica)*1))/4).toFixed(5);
 
+        // Painel informativo com as notas por categoria
+        infoEl.style.display = 'block';
+        infoEl.innerHTML = `
+          <b>Notas TACF</b><br>
+          Cintura: ${nCintura.toFixed(1)} / 30 &nbsp;|&nbsp;
+          Flexão: ${nFlex.toFixed(1)} / 10 &nbsp;|&nbsp;
+          Abdominal: ${nAbd.toFixed(1)} / 10 &nbsp;|&nbsp;
+          ${camChk.checked
+            ? `Caminhada: ${nAer.toFixed(1)} / 50`
+            : `Corrida: ${nAer.toFixed(1)} / 50`
+          }
+        `;
+
+        // Resumo detalhado
         const linhas = [];
         linhas.push('Sexo: ' + (sexo==='M'?'Masculino':'Feminino'));
         linhas.push('Idade: ' + idade);
         linhas.push('Estatura: ' + estaturaCm + ' cm');
         linhas.push('Cintura: ' + cinturaAdj.toFixed(1) + ' cm (Nota: ' + nCintura.toFixed(1) + '/30)');
-        if(flexao!=null) linhas.push('Flexão: ' + flexao + ' (Nota: ' + nFlex.toFixed(1) + '/10)');
-        if(abdominal!=null) linhas.push('Abdominal: ' + abdominal + ' (Nota: ' + nAbd.toFixed(1) + '/10)');
+        if(flexao!=null) linhas.push('Flexão: ' + flexao + ' rep (Nota: ' + nFlex.toFixed(1) + '/10)');
+        if(abdominal!=null) linhas.push('Abdominal: ' + abdominal + ' rep (Nota: ' + nAbd.toFixed(1) + '/10)');
         if (camChk.checked){
           linhas.push('Caminhada: ' + document.getElementById('tacfCaminhadaTempo').value + ' (Nota: ' + nAer.toFixed(1) + '/50)');
         } else {
