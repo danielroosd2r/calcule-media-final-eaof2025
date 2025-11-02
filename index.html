@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Saudação e Notas</title>
+  <title>Avaliação Final do Estágio</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,23 +16,50 @@
     }
     .container {
       background:#fff;
-      width:90%;
-      max-width:360px;
+      width:95%;
+      max-width:500px;
       padding:20px;
       border-radius:12px;
       box-shadow:0 2px 8px rgba(0,0,0,.15);
+    }
+    h1, h2, h3 {
       text-align:center;
+      color:#333;
+    }
+    fieldset {
+      border:2px solid #007bff;
+      border-radius:8px;
+      margin-top:15px;
+      padding:15px;
+      background:#f9f9f9;
+    }
+    legend {
+      font-weight:bold;
+      color:#007bff;
+      padding:0 8px;
+    }
+    .subcampo {
+      margin-top:10px;
+      border:1px solid #ccc;
+      border-radius:6px;
+      padding:10px;
+      background:#fff;
+    }
+    label {
+      display:block;
+      margin-top:5px;
+      font-weight:bold;
     }
     input {
       width:100%;
-      padding:10px;
-      margin-top:8px;
+      padding:8px;
       border:1px solid #ccc;
       border-radius:6px;
-      font-size:16px;
+      font-size:15px;
+      margin-top:4px;
     }
     button {
-      margin-top:15px;
+      margin-top:18px;
       padding:10px 20px;
       background:#007bff;
       color:#fff;
@@ -40,83 +67,122 @@
       border-radius:6px;
       font-size:16px;
       cursor:pointer;
+      width:100%;
     }
-    button:hover {
-      background:#0056b3;
-    }
+    button:hover { background:#0056b3; }
     #mensagem {
       margin-top:20px;
-      font-size:18px;
+      font-size:17px;
       color:#333;
-      min-height:1.2em;
+      text-align:center;
+      line-height:1.5em;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Digite seu nome</h2>
-    <input type="text" id="nome" placeholder="Seu nome" />
+    <h1>Avaliação Final do Estágio</h1>
 
-    <h2>Nota de AMT:</h2>
-    <input type="number" id="notaAMT" step="0.00001" min="0" max="10" placeholder="0 a 10" />
+    <label for="nome">Nome do Aluno:</label>
+    <input type="text" id="nome" placeholder="Digite seu nome" />
 
-    <h2>Nota de ND:</h2>
-    <input type="number" id="notaND" step="0.00001" min="0" max="10" placeholder="0 a 10" />
+    <!-- PROVAS TEÓRICAS -->
+    <fieldset>
+      <legend>PROVAS TEÓRICAS</legend>
 
-    <h2>Nota de GP:</h2>
-    <input type="number" id="notaGP" step="0.00001" min="0" max="10" placeholder="0 a 10" />
+      <div class="subcampo">
+        <label>Nota de AMT:</label>
+        <input type="number" id="notaAMT" step="0.00001" min="0" max="10" placeholder="0 a 10">
+      </div>
 
-    <button id="btnSaudar">Enviar</button>
+      <div class="subcampo">
+        <label>Nota de ND:</label>
+        <input type="number" id="notaND" step="0.00001" min="0" max="10" placeholder="0 a 10">
+      </div>
+
+      <div class="subcampo">
+        <label>Nota de GP:</label>
+        <input type="number" id="notaGP" step="0.00001" min="0" max="10" placeholder="0 a 10">
+      </div>
+    </fieldset>
+
+    <!-- PROVAS PRÁTICAS -->
+    <fieldset>
+      <legend>PROVAS PRÁTICAS</legend>
+
+      <div class="subcampo">
+        <h3>TACF</h3>
+        <label>Nota do TACF:</label>
+        <input type="number" id="notaTACF" step="0.00001" min="0" max="10" placeholder="0 a 10">
+      </div>
+
+      <div class="subcampo">
+        <h3>ORDEM UNIDA</h3>
+        <label>Nota da OU:</label>
+        <input type="number" id="notaOU" step="0.00001" min="0" max="10" placeholder="0 a 10">
+      </div>
+    </fieldset>
+
+    <button id="btnCalcular">Calcular Médias</button>
     <p id="mensagem"></p>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const nomeInput = document.getElementById('nome');
-      const amtInput  = document.getElementById('notaAMT');
-      const ndInput   = document.getElementById('notaND');
-      const gpInput   = document.getElementById('notaGP');
-      const mensagem  = document.getElementById('mensagem');
-      const btn       = document.getElementById('btnSaudar');
+      const nomeInput  = document.getElementById('nome');
+      const amtInput   = document.getElementById('notaAMT');
+      const ndInput    = document.getElementById('notaND');
+      const gpInput    = document.getElementById('notaGP');
+      const tacfInput  = document.getElementById('notaTACF');
+      const ouInput    = document.getElementById('notaOU');
+      const mensagem   = document.getElementById('mensagem');
+      const btn        = document.getElementById('btnCalcular');
 
       btn.addEventListener('click', () => {
         const nome = nomeInput.value.trim();
         const notaAMT = parseFloat(amtInput.value);
         const notaND  = parseFloat(ndInput.value);
         const notaGP  = parseFloat(gpInput.value);
+        const notaTACF = parseFloat(tacfInput.value);
+        const notaOU   = parseFloat(ouInput.value);
 
         if (!nome) {
-          mensagem.textContent = "Por favor, digite seu nome.";
-          return;
-        }
-        if ([notaAMT, notaND, notaGP].some(v => isNaN(v) || v < 0 || v > 10)) {
-          mensagem.textContent = "Todas as notas devem ser números válidos de 0 a 10.";
+          mensagem.textContent = "Por favor, digite o nome do aluno.";
           return;
         }
 
-        // Armazenar valores em variáveis globais
+        const notasTeoricas = [notaAMT, notaND, notaGP];
+        const notasPraticas = [notaTACF, notaOU];
+        if (notasTeoricas.some(v => isNaN(v) || v < 0 || v > 10) ||
+            notasPraticas.some(v => isNaN(v) || v < 0 || v > 10)) {
+          mensagem.textContent = "Todas as notas devem ser valores válidos entre 0 e 10.";
+          return;
+        }
+
+        // médias (todas com 5 casas decimais)
+        const mediaTeorica = ((notaAMT + notaND + notaGP) / 3).toFixed(5);
+        const mediaPratica = ((notaTACF + notaOU) / 2).toFixed(5);
+        const mediaEstagio = (((parseFloat(mediaTeorica) * 3) + (parseFloat(mediaPratica) * 1)) / 4).toFixed(5);
+
+        // salvar globalmente
         window.valorNome = nome;
-        window.valorNotaAMT = notaAMT;
-        window.valorNotaND  = notaND;
-        window.valorNotaGP  = notaGP;
+        window.mediaTeorica = parseFloat(mediaTeorica);
+        window.mediaPratica = parseFloat(mediaPratica);
+        window.mediaEstagio = parseFloat(mediaEstagio);
 
-        // Calcular média simples
-        const media = (notaAMT + notaND + notaGP) / 3;
-        window.valorMedia = media;
-
-        // Exibir resultado
+        // exibir resultados
         mensagem.innerHTML = `
-          Bem-vindo <b>${nome}</b>!<br>
-          AMT: ${notaAMT.toFixed(5)} | ND: ${notaND.toFixed(5)} | GP: ${notaGP.toFixed(5)}<br><br>
-          <b>Média Final das Provas Teóricas:</b> ${media.toFixed(5)}
+          <b>Aluno:</b> ${nome}<br><br>
+          <b>Média Final das Provas Teóricas:</b> ${mediaTeorica}<br>
+          <b>Média Final das Provas Práticas:</b> ${mediaPratica}<br><br>
+          <b>Média Final do Estágio:</b> ${mediaEstagio}
         `;
 
-        // Mostrar também no console
+        // console (para depuração)
         console.log("Nome:", nome);
-        console.log("AMT:", notaAMT);
-        console.log("ND:", notaND);
-        console.log("GP:", notaGP);
-        console.log("Média Final:", media);
+        console.log("Média Teórica:", mediaTeorica);
+        console.log("Média Prática:", mediaPratica);
+        console.log("Média Final do Estágio:", mediaEstagio);
       });
     });
   </script>
