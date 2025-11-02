@@ -17,15 +17,12 @@
     .container {
       background:#fff;
       width:95%;
-      max-width:500px;
+      max-width:640px;
       padding:20px;
       border-radius:12px;
       box-shadow:0 2px 8px rgba(0,0,0,.15);
     }
-    h1, h2, h3 {
-      text-align:center;
-      color:#333;
-    }
+    h1, h2, h3 { text-align:center; color:#333; margin:6px 0; }
     fieldset {
       border:2px solid #007bff;
       border-radius:8px;
@@ -38,19 +35,23 @@
       color:#007bff;
       padding:0 8px;
     }
+    .grid {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media (min-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
     .subcampo {
-      margin-top:10px;
       border:1px solid #ccc;
       border-radius:6px;
       padding:10px;
       background:#fff;
     }
-    label {
-      display:block;
-      margin-top:5px;
-      font-weight:bold;
-    }
-    input {
+    label { display:block; margin-top:4px; font-weight:bold; }
+    input, select {
       width:100%;
       padding:8px;
       border:1px solid #ccc;
@@ -58,6 +59,7 @@
       font-size:15px;
       margin-top:4px;
     }
+    .row { display:flex; align-items:center; gap:8px; margin-top:6px; }
     button {
       margin-top:18px;
       padding:10px 20px;
@@ -76,33 +78,34 @@
       color:#333;
       text-align:center;
       line-height:1.5em;
+      word-wrap:break-word;
     }
+    .muted { color:#666; font-size:13px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Avaliação Final do Estágio</h1>
 
-    <label for="nome">Nome do Aluno:</label>
-    <input type="text" id="nome" placeholder="Digite seu nome" />
+    <label for="nome">Nome do Aluno (opcional):</label>
+    <input type="text" id="nome" placeholder="Digite seu nome (opcional)" />
 
     <!-- PROVAS TEÓRICAS -->
     <fieldset>
       <legend>PROVAS TEÓRICAS</legend>
-
-      <div class="subcampo">
-        <label>Nota de AMT:</label>
-        <input type="number" id="notaAMT" step="0.00001" min="0" max="10" placeholder="0 a 10">
-      </div>
-
-      <div class="subcampo">
-        <label>Nota de ND:</label>
-        <input type="number" id="notaND" step="0.00001" min="0" max="10" placeholder="0 a 10">
-      </div>
-
-      <div class="subcampo">
-        <label>Nota de GP:</label>
-        <input type="number" id="notaGP" step="0.00001" min="0" max="10" placeholder="0 a 10">
+      <div class="grid grid-3">
+        <div class="subcampo">
+          <label>Nota de AMT:</label>
+          <input type="number" id="notaAMT" step="0.00001" min="0" max="10" placeholder="0 a 10">
+        </div>
+        <div class="subcampo">
+          <label>Nota de ND:</label>
+          <input type="number" id="notaND" step="0.00001" min="0" max="10" placeholder="0 a 10">
+        </div>
+        <div class="subcampo">
+          <label>Nota de GP:</label>
+          <input type="number" id="notaGP" step="0.00001" min="0" max="10" placeholder="0 a 10">
+        </div>
       </div>
     </fieldset>
 
@@ -110,15 +113,76 @@
     <fieldset>
       <legend>PROVAS PRÁTICAS</legend>
 
+      <!-- TACF -->
       <div class="subcampo">
         <h3>TACF</h3>
-        <label>Nota do TACF:</label>
+
+        <!-- Nota do TACF continua existindo para cálculo (0-10, 5 casas) -->
+        <label>Nota do TACF (0–10, até 5 casas):</label>
         <input type="number" id="notaTACF" step="0.00001" min="0" max="10" placeholder="0 a 10">
+
+        <p class="muted">Preencha também os subcampos do TACF (não alteram a nota enquanto não houver fórmula definida).</p>
+
+        <div class="grid grid-2">
+          <div>
+            <label for="tacfSexo">Sexo:</label>
+            <select id="tacfSexo">
+              <option value="">(selecionar)</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+            </select>
+          </div>
+          <div>
+            <label for="tacfIdade">Idade (18–100):</label>
+            <input type="number" id="tacfIdade" step="1" min="18" max="100" placeholder="Ex.: 25">
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div>
+            <label for="tacfEstatura">Estatura (cm):</label>
+            <input type="text" id="tacfEstatura" placeholder="Ex.: 175 ou 1,75">
+            <span class="muted">Se digitar em metros (ex.: 1,80), será convertido p/ cm (=180)</span>
+          </div>
+          <div>
+            <label for="tacfCintura">Cintura (cm):</label>
+            <input type="number" id="tacfCintura" step="0.5" placeholder="Ex.: 80.5">
+            <span class="muted">Precisão de 0,5 (1 casa decimal)</span>
+          </div>
+          <div>
+            <label for="tacfFlexao">Flexão (repetições):</label>
+            <input type="number" id="tacfFlexao" step="1" min="0" placeholder="Ex.: 30">
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div>
+            <label for="tacfAbdominal">Abdominal (repetições):</label>
+            <input type="number" id="tacfAbdominal" step="1" min="0" placeholder="Ex.: 35">
+          </div>
+          <div>
+            <label for="tacfCorrida">Corrida (metros):</label>
+            <input type="number" id="tacfCorrida" step="1" min="0" placeholder="Ex.: 2400">
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="tacfCaminhadaCheck" style="margin:0;">Caminhada</label>
+          <input type="checkbox" id="tacfCaminhadaCheck">
+        </div>
+
+        <div class="grid grid-2">
+          <div>
+            <label for="tacfCaminhadaTempo">Caminhada (tempo hh:mm:ss):</label>
+            <input type="text" id="tacfCaminhadaTempo" placeholder="Ex.: 00:30:00" disabled>
+          </div>
+        </div>
       </div>
 
+      <!-- ORDEM UNIDA -->
       <div class="subcampo">
         <h3>ORDEM UNIDA</h3>
-        <label>Nota da OU:</label>
+        <label>Nota da OU (0–10, até 5 casas):</label>
         <input type="number" id="notaOU" step="0.00001" min="0" max="10" placeholder="0 a 10">
       </div>
     </fieldset>
@@ -128,61 +192,221 @@
   </div>
 
   <script>
+    // Utilidades
+    function toNumberOrNull(v) {
+      if (v === null || v === undefined) return null;
+      const n = parseFloat(v);
+      return isNaN(n) ? null : n;
+    }
+
+    function normalizeEstaturaToCm(raw) {
+      if (!raw) return null;
+      // troca vírgula por ponto
+      let s = String(raw).trim().replace(',', '.');
+      // remove espaços
+      s = s.replace(/\s+/g, '');
+      const n = parseFloat(s);
+      if (isNaN(n)) return null;
+
+      // Se valor < 3, assumimos metros (ex.: 1.80 -> 180 cm)
+      if (n > 0 && n < 3) {
+        return Math.round(n * 100);
+      }
+      // Se for um inteiro grande (ex.: 175), já está em cm
+      return Math.round(n);
+    }
+
+    function roundToHalf(x) {
+      // arredonda para múltiplos de 0,5 com 1 casa
+      return Math.round(x * 2) / 2;
+    }
+
+    function parseHMS(hms) {
+      // hh:mm:ss -> segundos
+      if (!hms) return null;
+      const m = /^(\d{1,2}):([0-5]\d):([0-5]\d)$/.exec(hms.trim());
+      if (!m) return null;
+      const h = parseInt(m[1], 10), mi = parseInt(m[2], 10), s = parseInt(m[3], 10);
+      return h * 3600 + mi * 60 + s;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-      const nomeInput  = document.getElementById('nome');
-      const amtInput   = document.getElementById('notaAMT');
-      const ndInput    = document.getElementById('notaND');
-      const gpInput    = document.getElementById('notaGP');
-      const tacfInput  = document.getElementById('notaTACF');
-      const ouInput    = document.getElementById('notaOU');
-      const mensagem   = document.getElementById('mensagem');
-      const btn        = document.getElementById('btnCalcular');
+      const nomeInput   = document.getElementById('nome');
+
+      // Teóricas
+      const amtInput    = document.getElementById('notaAMT');
+      const ndInput     = document.getElementById('notaND');
+      const gpInput     = document.getElementById('notaGP');
+
+      // TACF (nota + subcampos)
+      const notaTACFInp = document.getElementById('notaTACF');
+      const sexoSel     = document.getElementById('tacfSexo');
+      const idadeInp    = document.getElementById('tacfIdade');
+      const estaturaInp = document.getElementById('tacfEstatura');
+      const cinturaInp  = document.getElementById('tacfCintura');
+      const flexaoInp   = document.getElementById('tacfFlexao');
+      const abdInp      = document.getElementById('tacfAbdominal');
+      const corridaInp  = document.getElementById('tacfCorrida');
+      const camChk      = document.getElementById('tacfCaminhadaCheck');
+      const camTempoInp = document.getElementById('tacfCaminhadaTempo');
+
+      // OU
+      const ouInput     = document.getElementById('notaOU');
+
+      const mensagem    = document.getElementById('mensagem');
+      const btn         = document.getElementById('btnCalcular');
+
+      // --- Comportamentos TACF ---
+
+      // Estatura: converter metros para cm ao sair do campo
+      estaturaInp.addEventListener('blur', () => {
+        const cm = normalizeEstaturaToCm(estaturaInp.value);
+        if (cm !== null) estaturaInp.value = String(cm);
+      });
+
+      // Cintura: travar precisão em 0,5 e 1 casa decimal
+      cinturaInp.addEventListener('blur', () => {
+        const v = toNumberOrNull((cinturaInp.value || '').replace(',', '.'));
+        if (v === null) return;
+        const r = roundToHalf(v);
+        cinturaInp.value = r.toFixed(1);
+      });
+
+      // Caminhada x Corrida: alternância
+      function updateCaminhadaState() {
+        const checked = camChk.checked;
+        corridaInp.disabled = checked;
+        camTempoInp.disabled = !checked;
+        if (checked) {
+          corridaInp.value = '';
+        } else {
+          camTempoInp.value = '';
+        }
+      }
+      camChk.addEventListener('change', updateCaminhadaState);
+      updateCaminhadaState();
 
       btn.addEventListener('click', () => {
-        const nome = nomeInput.value.trim();
-        const notaAMT = parseFloat(amtInput.value);
-        const notaND  = parseFloat(ndInput.value);
-        const notaGP  = parseFloat(gpInput.value);
-        const notaTACF = parseFloat(tacfInput.value);
-        const notaOU   = parseFloat(ouInput.value);
+        const nome = (nomeInput.value || '').trim();
 
-        if (!nome) {
-          mensagem.textContent = "Por favor, digite o nome do aluno.";
-          return;
-        }
+        // --- Validações básicas de notas (0..10, 5 casas) ---
+        const notaAMT  = toNumberOrNull(amtInput.value);
+        const notaND   = toNumberOrNull(ndInput.value);
+        const notaGP   = toNumberOrNull(gpInput.value);
+        const notaTACF = toNumberOrNull(notaTACFInp.value);
+        const notaOU   = toNumberOrNull(ouInput.value);
 
         const notasTeoricas = [notaAMT, notaND, notaGP];
         const notasPraticas = [notaTACF, notaOU];
-        if (notasTeoricas.some(v => isNaN(v) || v < 0 || v > 10) ||
-            notasPraticas.some(v => isNaN(v) || v < 0 || v > 10)) {
-          mensagem.textContent = "Todas as notas devem ser valores válidos entre 0 e 10.";
+
+        if (notasTeoricas.some(v => v === null || v < 0 || v > 10) ||
+            notasPraticas.some(v => v === null || v < 0 || v > 10)) {
+          mensagem.textContent = 'Todas as notas (AMT, ND, GP, TACF, OU) devem ser válidas entre 0 e 10.';
           return;
         }
 
-        // médias (todas com 5 casas decimais)
+        // --- Subcampos TACF (validação leve) ---
+        // Sexo: opcional
+        const sexo = sexoSel.value || '';
+
+        // Idade: opcional, mas se preencher precisa estar em 18..100 e ser inteiro
+        let idade = null;
+        if (idadeInp.value.trim()) {
+          idade = parseInt(idadeInp.value, 10);
+          if (isNaN(idade) || idade < 18 || idade > 100) {
+            mensagem.textContent = 'Idade inválida. Informe um inteiro entre 18 e 100.';
+            return;
+          }
+        }
+
+        // Estatura (cm): opcional, aceita metros e converte
+        let estaturaCm = null;
+        if (estaturaInp.value.trim()) {
+          estaturaCm = normalizeEstaturaToCm(estaturaInp.value);
+          if (estaturaCm === null || estaturaCm <= 0) {
+            mensagem.textContent = 'Estatura inválida. Informe em cm (ex.: 175) ou metros (ex.: 1,75).';
+            return;
+          }
+          estaturaInp.value = String(estaturaCm);
+        }
+
+        // Cintura (cm): opcional, se preencher, força passo 0,5 (1 casa)
+        let cintura = null;
+        if (cinturaInp.value.trim()) {
+          const val = toNumberOrNull((cinturaInp.value || '').replace(',', '.'));
+          if (val === null) { mensagem.textContent = 'Cintura inválida.'; return; }
+          const arred = roundToHalf(val);
+          cintura = arred;
+          cinturaInp.value = arred.toFixed(1);
+        }
+
+        // Flexão / Abdominal inteiros, se fornecidos
+        let flexao = null, abdominal = null;
+        if (flexaoInp.value.trim()) {
+          flexao = parseInt(flexaoInp.value, 10);
+          if (isNaN(flexao) || flexao < 0) { mensagem.textContent = 'Flexão deve ser inteiro >= 0.'; return; }
+        }
+        if (abdInp.value.trim()) {
+          abdominal = parseInt(abdInp.value, 10);
+          if (isNaN(abdominal) || abdominal < 0) { mensagem.textContent = 'Abdominal deve ser inteiro >= 0.'; return; }
+        }
+
+        // Corrida (m) inteiro OU Caminhada (hh:mm:ss)
+        let corridaM = null, caminhadaSeg = null;
+        if (camChk.checked) {
+          // Caminhada
+          const seg = parseHMS(camTempoInp.value);
+          if (seg === null) { mensagem.textContent = 'Tempo de caminhada inválido. Use hh:mm:ss (ex.: 00:30:00).'; return; }
+          caminhadaSeg = seg;
+          corridaInp.value = '';
+        } else {
+          // Corrida
+          if (corridaInp.value.trim()) {
+            corridaM = parseInt(corridaInp.value, 10);
+            if (isNaN(corridaM) || corridaM < 0) { mensagem.textContent = 'Corrida deve ser inteiro em metros >= 0.'; return; }
+          }
+          camTempoInp.value = '';
+        }
+
+        // --- Cálculos das médias (5 casas) ---
         const mediaTeorica = ((notaAMT + notaND + notaGP) / 3).toFixed(5);
         const mediaPratica = ((notaTACF + notaOU) / 2).toFixed(5);
         const mediaEstagio = (((parseFloat(mediaTeorica) * 3) + (parseFloat(mediaPratica) * 1)) / 4).toFixed(5);
 
-        // salvar globalmente
-        window.valorNome = nome;
+        // Globais (se quiser usar no console)
+        window.valorNome = nome || '(não informado)';
         window.mediaTeorica = parseFloat(mediaTeorica);
         window.mediaPratica = parseFloat(mediaPratica);
         window.mediaEstagio = parseFloat(mediaEstagio);
+        window.tacf = {
+          sexo, idade, estaturaCm, cintura, flexao, abdominal,
+          corridaM, caminhadaSeg, caminhando: camChk.checked
+        };
 
-        // exibir resultados
+        // Saída
+        const tacfResumo = `
+          <br><u>Dados TACF</u>:
+          ${sexo ? '<br>Sexo: ' + (sexo === 'M' ? 'Masculino' : 'Feminino') : ''}
+          ${idade !== null ? '<br>Idade: ' + idade : ''}
+          ${estaturaCm !== null ? '<br>Estatura: ' + estaturaCm + ' cm' : ''}
+          ${cintura !== null ? '<br>Cintura: ' + cintura.toFixed(1) + ' cm' : ''}
+          ${flexao !== null ? '<br>Flexão: ' + flexao : ''}
+          ${abdominal !== null ? '<br>Abdominal: ' + abdominal : ''}
+          ${camChk.checked
+            ? (caminhadaSeg !== null ? '<br>Caminhada: ' + camTempoInp.value + ' (hh:mm:ss)' : '')
+            : (corridaM !== null ? '<br>Corrida: ' + corridaM + ' m' : '')
+          }
+        `;
+
         mensagem.innerHTML = `
-          <b>Aluno:</b> ${nome}<br><br>
+          <b>Aluno:</b> ${window.valorNome}<br><br>
           <b>Média Final das Provas Teóricas:</b> ${mediaTeorica}<br>
           <b>Média Final das Provas Práticas:</b> ${mediaPratica}<br><br>
           <b>Média Final do Estágio:</b> ${mediaEstagio}
+          ${tacfResumo}
         `;
 
-        // console (para depuração)
-        console.log("Nome:", nome);
-        console.log("Média Teórica:", mediaTeorica);
-        console.log("Média Prática:", mediaPratica);
-        console.log("Média Final do Estágio:", mediaEstagio);
+        console.log('Resumo TACF:', window.tacf);
       });
     });
   </script>
