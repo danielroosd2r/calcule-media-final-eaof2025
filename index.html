@@ -525,13 +525,13 @@
           linhas.push('Sexo: ' + (sexo==='M'?'Masculino':'Feminino'));
           linhas.push('Idade: ' + idade);
           linhas.push('Estatura: ' + estaturaCm + ' cm');
-          linhas.push('Cintura: ' + cinturaAdj.toFixed(1) + ' cm (Nota: ' + nCintura.toFixed(1) + '/30)');
-          if(flexao!=null) linhas.push('Flexão: ' + flexao + ' rep (Nota: ' + nFlex.toFixed(1) + '/10)');
-          if(abdominal!=null) linhas.push('Abdominal: ' + abdominal + ' rep (Nota: ' + nAbd.toFixed(1) + '/10)');
+          linhas.push('Cintura: ' + cinturaAdj.toFixed(1) + ' cm (Nota: ' + nCintura.toFixed(1) + '/30.0)');
+          if(flexao!=null) linhas.push('Flexão: ' + flexao + ' rep (Nota: ' + nFlex.toFixed(1) + '/10.0)');
+          if(abdominal!=null) linhas.push('Abdominal: ' + abdominal + ' rep (Nota: ' + nAbd.toFixed(1) + '/10.0)');
           if (camChk.checked){
-            linhas.push('Caminhada: ' + document.getElementById('tacfCaminhadaTempo').value + ' (Nota: ' + nAer.toFixed(1) + '/50)');
+            linhas.push('Caminhada: ' + document.getElementById('tacfCaminhadaTempo').value + ' (Nota: ' + nAer.toFixed(1) + '/50.0)');
           } else {
-            linhas.push('Corrida: ' + corridaM + ' m (Nota: ' + nAer.toFixed(1) + '/50)');
+            linhas.push('Corrida: ' + corridaM + ' m (Nota: ' + nAer.toFixed(1) + '/50.0)');
           }
           linhas.push('<b>Nota do TACF (calculada):</b> ' + notaTACF_calc.toFixed(5));
 
